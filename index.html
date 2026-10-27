@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bronze Badge Submission</title>
+<style>
+/* ── reset ── */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",Arial,sans-serif;font-size:14px;color:#1a1a1a;background:#f4f2f9;min-height:100vh}
+
+/* ── toolbar ── */
+#toolbar{position:sticky;top:0;z-index:100;background:#4B1882;color:#fff;display:flex;align-items:center;gap:12px;padding:10px 24px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+#toolbar h1{font-size:15px;font-weight:700;flex:1}
+.tbtn{background:#fff2;border:1px solid #fff4;color:#fff;padding:6px 14px;border-radius:20px;cursor:pointer;font-size:13px;font-weight:600;transition:background .15s}
+.tbtn:hover{background:#fff3}
+.tbtn.primary{background:#fff;color:#4B1882}
+.tbtn.primary:hover{background:#e9e3f5}
+.save-status{font-size:12px;opacity:.7}
+
+/* ── layout ── */
+.page{max-width:860px;margin:24px auto;padding:0 16px 60px}
+
+/* ── card ── */
+.card{background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.10);margin-bottom:20px;overflow:hidden}
+.card-head{background:#4B1882;color:#fff;padding:12px 20px;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.card-head .step-badge{background:#fff3;border-radius:20px;padding:2px 10px;font-size:11px}
+.card-body{padding:20px}
+
+/* ── form fields ── */
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#666}
+.field input,.field select{border:1.5px solid #ddd;border-radius:6px;padding:8px 10px;font-size:14px;font-family:inherit;transition:border-color .15s;background:#fafafa}
+.field input:focus,.field select:focus{outline:none;border-color:#4B1882;background:#fff}
+.field input.required:placeholder-shown{border-color:#f59e42}
+.hint{font-size:11px;color:#888;margin-top:2px}
+
+/* ── screenshot upload ── */
+.upload-zone{border:2px dashed #c4b5fd;border-radius:8px;background:#faf8ff;padding:24px 16px;text-align:center;cursor:pointer;transition:all .2s;position:relative;margin:10px 0}
+.upload-zone:hover,.upload-zone.drag{border-color:#4B1882;background:#f0ebff}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-zone .uz-icon{font-size:28px;margin-bottom:6px}
+.upload-zone .uz-label{font-weight:600;color:#4B1882;font-size:14px}
+.upload-zone .uz-hint{font-size:12px;color:#aaa;margin-top:3px}
+.upload-zone .preview-img{max-width:100%;max-height:320px;border-radius:6px;margin-top:8px;display:none}
+.upload-zone .remove-btn{display:none;margin-top:8px;background:#fee2e2;border:none;color:#dc2626;padding:4px 12px;border-radius:20px;cursor:pointer;font-size:12px}
+.upload-zone.has-image .uz-icon,.upload-zone.has-image .uz-label,.upload-zone.has-image .uz-hint{display:none}
+.upload-zone.has-image .preview-img,.upload-zone.has-image .remove-btn{display:block}
+.upload-zone.has-image{background:#f0fdf4;border-color:#86efac;border-style:solid}
+.upload-zone.has-image input[type=file]{pointer-events:none}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* ── pre-filled content ── */
+.pre-content{background:#faf8ff;border-radius:8px;padding:16px;border:1px solid #e0d6f0;margin:10px 0;font-size:13px;line-height:1.7}
+.pre-content h3{font-size:13px;color:#4B1882;font-weight:700;margin-bottom:8px}
+.pre-content ul{padding-left:18px}
+.pre-content li{margin-bottom:4px}
+.pre-content p{margin-bottom:6px}
+
+/* ── table ── */
+table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
+th{background:#4B1882;color:#fff;padding:8px 10px;text-align:left;font-weight:600;font-size:12px}
+td{padding:7px 10px;border-bottom:1px solid #eee;vertical-align:top}
+tr:nth-child(even) td{background:#faf8ff}
+.pass{color:#16a34a;font-weight:700}
+
+/* ── callout ── */
+.callout{border-left:4px solid #4B1882;background:#f0ebff;padding:12px 16px;border-radius:0 6px 6px 0;font-size:13px;line-height:1.6;margin:8px 0}
+.url-chip{display:inline-block;background:#f0ebff;border:1px solid #c4b5fd;color:#4B1882;padding:3px 10px;border-radius:20px;font-family:monospace;font-size:12px;word-break:break-all}
+
+/* ── before/after ── */
+.ba-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0}
+.ba-col{border-radius:6px;padding:12px 14px;font-size:13px}
+.ba-before{background:#fff5f5;border:1px solid #fecaca}
+.ba-after{background:#f0fdf4;border:1px solid #bbf7d0}
+.ba-title{font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.ba-before .ba-title{color:#dc2626}
+.ba-after .ba-title{color:#16a34a}
+.ba-col ul{padding-left:16px}
+.ba-col li{margin-bottom:3px}
+
+/* ── checklist ── */
+.checklist{list-style:none}
+.checklist li{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
+.checklist li:last-child{border-bottom:none}
+.check-box{width:18px;height:18px;border:2px solid #4B1882;border-radius:4px;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.check-box.done{background:#4B1882;color:#fff;font-size:11px}
+.check-box.auto{background:#4B1882;color:#fff;font-size:11px;cursor:default}
+
+/* ── submit section ── */
+.submit-box{background:linear-gradient(135deg,#4B1882,#7c3aed);color:#fff;border-radius:10px;padding:24px;text-align:center;margin-bottom:20px}
+.submit-box h2{font-size:18px;margin-bottom:8px}
+.submit-box p{font-size:13px;opacity:.85;margin-bottom:16px}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:500px;margin:0 auto}
+.contact-btn{background:#fff;color:#4B1882;border:none;padding:12px 16px;border-radius:8px;cursor:pointer;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px}
+.contact-btn:hover{background:#f0ebff}
+
+/* ── print ── */
+@media print{
+  #toolbar,.no-print{display:none!important}
+  body{background:#fff}
+  .page{margin:0;padding:0;max-width:100%}
+  .card{box-shadow:none;border:1px solid #e0d6f0;page-break-inside:avoid}
+  .upload-zone{border:1px solid #ccc}
+  .upload-zone .uz-icon,.upload-zone .uz-label,.upload-zone .uz-hint{display:none}
+  .upload-zone.has-image .preview-img{display:block}
+  .upload-zone:not(.has-image){height:120px}
+}
+</style>
+</head>
+<body>
+
+<!-- ── TOOLBAR ── -->
+<div id="toolbar">
+  <h1>🏆 AI Bronze Badge — Submission Builder</h1>
+  <span class="save-status" id="saveStatus"></span>
+  <button class="tbtn" onclick="clearAll()">Clear All</button>
+  <button class="tbtn primary" onclick="window.print()">🖨️ Export PDF</button>
+</div>
+
+<div class="page">
+
+<!-- ══════════════════════════════════════════════════════════
+     PERSONAL INFO
+══════════════════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-head">👤 Your Information <span class="step-badge">Fill in before submitting</span></div>
+  <div class="card-body">
+    <div class="field-grid">
+      <div class="field">
+        <label>Full Name *</label>
+        <input id="f_name" type="text" placeholder="e.g. Heather Bu" oninput="save()" class="required">
+      </div>
+      <div class="field">
+        <label>I-Number *</label>
+        <input id="f_inum" type="text" placeholder="e.g. I546103" oninput="save()" class="required">
+      </div>
+      <div class="field">
+        <label>SAP Email *</label>
+        <input id="f_email" type="email" placeholder="firstname.lastname@sap.com" oninput="save()" class="required">
+      </div>
+      <div class="field">
+        <label>Event / Workshop Name</label>
+        <input id="f_event" type="text" value="Hands-on AI Agent Building Workshop" oninput="save()">
+      </div>
+      <div class="field">
+        <label>Event Date</label>
+        <input id="f_date" type="text" value="2026-10-27" oninput="save()">
+      </div>
+      <div class="field">
+        <label>Duration</label>
+        <input id="f_duration" type="text" value="Full day · 4+ hours hands-on" oninput="save()">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     STEP 1 — FORMAT
+══════════════════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-head">📅 Step 1 · Prove the Format <span class="step-badge">Full-day onsite · 4+ hours · Q1 2026 or later</span></div>
+  <div class="card-body">
+    <div class="pre-content">
+      <p>Full-day onsite hands-on workshop focused on building an AI Agent using the A2A (Agent-to-Agent) protocol on SAP BTP. Hands-on coding exceeded 4 hours, covering CF CLI setup, agent scaffolding, A2A protocol implementation, real CPG dataset integration, BTP deployment, and live compliance validation.</p>
+      <p><strong>Event:</strong> <span id="d_event"></span> &nbsp;·&nbsp; <strong>Date:</strong> <span id="d_date"></span></p>
+    </div>
+    <div class="two-col">
+      <div>
+        <p style="font-size:12px;font-weight:700;color:#4B1882;margin-bottom:4px">EVENT INVITATION OR CALENDAR SCREENSHOT</p>
+        <div class="upload-zone" id="z_invite">
+          <input type="file" accept="image/*" onchange="setImage(this,'z_invite')">
+          <div class="uz-icon">📅</div>
+          <div class="uz-label">Click or drag to upload</div>
+          <div class="uz-hint">Calendar invite / event page showing date &amp; format</div>
+          <img class="preview-img" id="img_invite">
+          <button class="remove-btn" onclick="removeImage(event,'z_invite','img_invite')">✕ Remove</button>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:12px;font-weight:700;color:#4B1882;margin-bottom:4px">EVENT AGENDA SCREENSHOT</p>
+        <div class="upload-zone" id="z_agenda">
+          <input type="file" accept="image/*" onchange="setImage(this,'z_agenda')">
+          <div class="uz-icon">📋</div>
+          <div class="uz-label">Click or drag to upload</div>
+          <div class="uz-hint">Official agenda showing 4+ hours hands-on</div>
+          <img class="preview-img" id="img_agenda">
+          <button class="remove-btn" onclick="removeImage(event,'z_agenda','img_agenda')">✕ Remove</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     STEP 2 — WHAT WAS BUILT
+══════════════════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-head">🛠️ Step 2 · Show What Was Built <span class="step-badge">Realistic use case · Tangible output</span></div>
+  <div class="card-body">
+
+    <div class="callout">
+      <strong>Built and deployed:</strong> A fully A2A-compliant CPG Trade Promotion Management AI Agent on SAP BTP Cloud Foundry EU10. The agent answers business questions about a real CPG promotional dataset using SAP AI Core (Claude 4.5 Sonnet) as the LLM backend.
+    </div>
+
+    <p style="margin:12px 0 4px"><strong>Live artifact:</strong></p>
+    <p><span class="url-chip">https://promotion-pricing-agent.cfapps.eu10-005.hana.ondemand.com/.well-known/agent.json</span></p>
+
+    <div class="pre-content" style="margin-top:14px">
+      <h3>Use Case — CPG Trade Promotion ROI Analysis</h3>
+      <p>CPG manufacturers spend 15–25% of revenue on trade promotions with limited visibility into which are profitable. Manual ROI calculation requires analyst hours. This agent provides instant answers from a 2027 promotion plan (42 Trade Promotions, 25 products) and 2025–2026 syndicated sell-out actuals.</p>
+      <p><strong>Key finding from dataset:</strong> 39 of 42 planned 2027 promotions have GP ROI &lt; 1.0× — a signal that normally surfaces in weeks through traditional processes.</p>
+    </div>
+
+    <p style="font-size:12px;font-weight:700;color:#4B1882;margin:14px 0 4px">EVALUATOR RESULTS — ALL 5 QUESTIONS PASSED</p>
+    <table>
+      <tr><th>#</th><th>Evaluator Question</th><th>Agent Answer</th><th>Result</th></tr>
+      <tr><td>1</td><td>Agent Connectivity &amp; Card</td><td>protocolVersion "0.3", JSONRPC binding, 3 skills, all required fields</td><td class="pass">✓ PASS</td></tr>
+      <tr><td>2</td><td>Who are you? What can you help with?</td><td>CPG Trade Promotion Management AI on SAP BTP — 5 capability areas</td><td class="pass">✓ PASS</td></tr>
+      <tr><td>3</td><td>How many promotions does Customer A have in the 2027 plan?</td><td><strong>42 Trade Promotions</strong></td><td class="pass">✓ PASS</td></tr>
+      <tr><td>4</td><td>What is the total ROI of Promotion ID 10?</td><td><strong>Revenue ROI: 3.00×</strong> (Investment $168,089 → Revenue $503,726)</td><td class="pass">✓ PASS</td></tr>
+      <tr><td>5</td><td>Strategy recommendations to improve future ROI?</td><td>6 data-driven recommendations from syndicated actuals (dual-tactic: 18.3× vs 2.5× uplift)</td><td class="pass">✓ PASS</td></tr>
+    </table>
+
+    <div class="two-col" style="margin-top:14px">
+      <div>
+        <p style="font-size:12px;font-weight:700;color:#4B1882;margin-bottom:4px">LIVE AGENT CARD (browser screenshot)</p>
+        <div class="upload-zone" id="z_card">
+          <input type="file" accept="image/*" onchange="setImage(this,'z_card')">
+          <div class="uz-icon">🌐</div>
+          <div class="uz-label">Click or drag to upload</div>
+          <div class="uz-hint">/.well-known/agent.json showing name, skills, protocolVersion</div>
+          <img class="preview-img" id="img_card">
+          <button class="remove-btn" onclick="removeImage(event,'z_card','img_card')">✕ Remove</button>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:12px;font-weight:700;color:#4B1882;margin-bottom:4px">EVALUATOR SCORE SCREENSHOT</p>
+        <div class="upload-zone" id="z_eval">
+          <input type="file" accept="image/*" onchange="setImage(this,'z_eval')">
+          <div class="uz-icon">✅</div>
+          <div class="uz-label">Click or drag to upload</div>
+          <div class="uz-hint">Evaluator results showing passed questions</div>
+          <img class="preview-img" id="img_eval">
+          <button class="remove-btn" onclick="removeImage(event,'z_eval','img_eval')">✕ Remove</button>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:12px;font-weight:700;color:#4B1882;margin-bottom:4px">AGENT ANSWERING Q3 (42 promotions)</p>
+        <div class="upload-zone" id="z_q3">
+          <input type="file" accept="image/*" onchange="setImage(this,'z_q3')">
+          <div class="uz-icon">💬</div>
+          <div class="uz-label">Click or drag to upload</div>
+          <div class="uz-hint">Agent responding "42 Trade Promotions"</div>
+          <img class="preview-img" id="img_q3">
+          <button class="remove-btn" onclick="removeImage(event,'z_q3','img_q3')">✕ Remove</button>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:12px;font-weight:700;color:#4B1882;margin-bottom:4px">AGENT ANSWERING Q4 (ROI 3.00×)</p>
+        <div class="upload-zone" id="z_q4">
+          <input type="file" accept="image/*" onchange="setImage(this,'z_q4')">
+          <div class="uz-icon">📊</div>
+          <div class="uz-label">Click or drag to upload</div>
+          <div class="uz-hint">Agent showing Revenue ROI 3.00× breakdown</div>
+          <img class="preview-img" id="img_q4">
+          <button class="remove-btn" onclick="removeImage(event,'z_q4','img_q4')">✕ Remove</button>
+        </div>
+      </div>
+    </div>
+
+    <p style="font-size:12px;font-weight:700;color:#4B1882;margin:14px 0 4px">BTP DEPLOYMENT SCREENSHOT</p>
+    <div class="upload-zone" id="z_deploy">
+      <input type="file" accept="image/*" onchange="setImage(this,'z_deploy')">
+      <div class="uz-icon">🚀</div>
+      <div class="uz-label">Click or drag to upload</div>
+      <div class="uz-hint">CF push result showing "#0 running" or BTP cockpit</div>
+      <img class="preview-img" id="img_deploy">
+      <button class="remove-btn" onclick="removeImage(event,'z_deploy','img_deploy')">✕ Remove</button>
+    </div>
+
+    <div class="pre-content" style="margin-top:14px">
+      <h3>Before vs After</h3>
+    </div>
+    <div class="ba-grid">
+      <div class="ba-col ba-before">
+        <div class="ba-title">Before (session start)</div>
+        <ul>
+          <li>Generic "promotional pricing" agent</li>
+          <li>"I don't have access to your internal systems"</li>
+          <li>A2A card had wrong field names (SDK divergence)</li>
+          <li>No grounding in real data</li>
+        </ul>
+      </div>
+      <div class="ba-col ba-after">
+        <div class="ba-title">After (end of session)</div>
+        <ul>
+          <li>CPG-specific agent: PPG, ACV%, trade spend, uplift</li>
+          <li>Answers "42 promotions" and "ROI 3.00×" directly</li>
+          <li>Full A2A spec compliance — evaluator passed</li>
+          <li>Strategy from 2 years syndicated actuals</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     STEP 3 — PARTICIPATION
+══════════════════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-head">✅ Step 3 · Verify Participation <span class="step-badge">Registration record · Sign-in or completion proof</span></div>
+  <div class="card-body">
+    <div class="two-col">
+      <div>
+        <p style="font-size:12px;font-weight:700;color:#4B1882;margin-bottom:4px">REGISTRATION CONFIRMATION</p>
+        <div class="upload-zone" id="z_reg">
+          <input type="file" accept="image/*" onchange="setImage(this,'z_reg')">
+          <div class="uz-icon">📝</div>
+          <div class="uz-label">Click or drag to upload</div>
+          <div class="uz-hint">Registration email or event system confirmation</div>
+          <img class="preview-img" id="img_reg">
+          <button class="remove-btn" onclick="removeImage(event,'z_reg','img_reg')">✕ Remove</button>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:12px;font-weight:700;color:#4B1882;margin-bottom:4px">SIGN-IN SHEET OR COMPLETION RECORD</p>
+        <div class="upload-zone" id="z_signin">
+          <input type="file" accept="image/*" onchange="setImage(this,'z_signin')">
+          <div class="uz-icon">🪪</div>
+          <div class="uz-label">Click or drag to upload</div>
+          <div class="uz-hint">Physical sign-in sheet, badge scan, or digital attendance</div>
+          <img class="preview-img" id="img_signin">
+          <button class="remove-btn" onclick="removeImage(event,'z_signin','img_signin')">✕ Remove</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     STEP 4 — ATTENDANCE RECORD
+══════════════════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-head">📄 Step 4 · Attendance Record <span class="step-badge">Name · I-Number · Email · Event details</span></div>
+  <div class="card-body">
+    <table>
+      <tr><th>Field</th><th>Value</th></tr>
+      <tr><td>Employee Name</td><td id="d_name2" style="font-weight:600"></td></tr>
+      <tr><td>I-Number</td><td id="d_inum2" style="font-weight:600"></td></tr>
+      <tr><td>Email</td><td id="d_email2" style="font-weight:600"></td></tr>
+      <tr><td>Event Name</td><td id="d_event2" style="font-weight:600"></td></tr>
+      <tr><td>Event Date</td><td id="d_date2" style="font-weight:600"></td></tr>
+      <tr><td>Duration</td><td id="d_duration2" style="font-weight:600"></td></tr>
+      <tr><td>Platform</td><td>SAP BTP Cloud Foundry EU10 · tgd2026handson</td></tr>
+    </table>
+    <p style="font-size:12px;font-weight:700;color:#4B1882;margin:14px 0 4px">ADDITIONAL ATTENDANCE EVIDENCE</p>
+    <div class="upload-zone" id="z_att">
+      <input type="file" accept="image/*" onchange="setImage(this,'z_att')">
+      <div class="uz-icon">📸</div>
+      <div class="uz-label">Click or drag to upload</div>
+      <div class="uz-hint">Any additional attendance proof — badge photo, team photo, etc.</div>
+      <img class="preview-img" id="img_att">
+      <button class="remove-btn" onclick="removeImage(event,'z_att','img_att')">✕ Remove</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     CHECKLIST
+══════════════════════════════════════════════════════════ -->
+<div class="card no-print">
+  <div class="card-head">☑️ Pre-Submission Checklist</div>
+  <div class="card-body">
+    <ul class="checklist">
+      <li><div class="check-box" onclick="toggleCheck(this)"></div>Filled in Name, I-Number, Email above</li>
+      <li><div class="check-box" onclick="toggleCheck(this)"></div>Added Event Invitation / Calendar screenshot (Step 1)</li>
+      <li><div class="check-box" onclick="toggleCheck(this)"></div>Added Agenda screenshot showing 4+ hours (Step 1)</li>
+      <li><div class="check-box auto done">✓</div>Live agent URL included — no action needed</li>
+      <li><div class="check-box auto done">✓</div>Evaluator results table pre-filled — add screenshot to confirm</li>
+      <li><div class="check-box" onclick="toggleCheck(this)"></div>Added Live Agent Card screenshot (Step 2)</li>
+      <li><div class="check-box" onclick="toggleCheck(this)"></div>Added Evaluator score screenshot (Step 2)</li>
+      <li><div class="check-box" onclick="toggleCheck(this)"></div>Added Agent answering Q3 — 42 promotions (Step 2)</li>
+      <li><div class="check-box" onclick="toggleCheck(this)"></div>Added Agent answering Q4 — ROI 3.00× (Step 2)</li>
+      <li><div class="check-box" onclick="toggleCheck(this)"></div>Added BTP deployment screenshot (Step 2)</li>
+      <li><div class="check-box" onclick="toggleCheck(this)"></div>Added Registration confirmation (Step 3)</li>
+      <li><div class="check-box" onclick="toggleCheck(this)"></div>Added Sign-in / attendance evidence (Steps 3 &amp; 4)</li>
+      <li><div class="check-box" onclick="toggleCheck(this)"></div>Click "Export PDF" → save PDF → email to Julie Thomas or Oscar Anaya Gonzalez</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     STEP 5 — SUBMIT
+══════════════════════════════════════════════════════════ -->
+<div class="submit-box no-print">
+  <h2>Step 5 · Submit &amp; Claim</h2>
+  <p>Export this page as PDF (toolbar above), then send to either:</p>
+  <div class="contact-grid">
+    <button class="contact-btn" onclick="mailto('julie.thomas@sap.com')">✉️ Julie Thomas</button>
+    <button class="contact-btn" onclick="mailto('oscar.anaya.gonzalez@sap.com')">✉️ Oscar Anaya Gonzalez</button>
+  </div>
+  <p style="margin-top:12px;font-size:12px;opacity:.6">Email addresses are illustrative — confirm from the event materials</p>
+</div>
+
+</div><!-- /page -->
+
+<script>
+// ── live data binding ──
+function syncDisplay(){
+  var map={f_name:['d_name2'],f_inum:['d_inum2'],f_email:['d_email2'],
+           f_event:['d_event','d_event2'],f_date:['d_date','d_date2'],f_duration:['d_duration2']};
+  for(var id in map){
+    var val=document.getElementById(id)?.value||'';
+    map[id].forEach(function(tid){
+      var el=document.getElementById(tid);
+      if(el)el.textContent=val||'—';
+    });
+  }
+}
+
+// ── save/load (localStorage) ──
+var FIELDS=['f_name','f_inum','f_email','f_event','f_date','f_duration'];
+function save(){
+  var d={};
+  FIELDS.forEach(function(id){d[id]=document.getElementById(id).value});
+  localStorage.setItem('badgeForm',JSON.stringify(d));
+  syncDisplay();
+  document.getElementById('saveStatus').textContent='Saved ✓';
+  setTimeout(function(){document.getElementById('saveStatus').textContent=''},1500);
+}
+function load(){
+  try{
+    var d=JSON.parse(localStorage.getItem('badgeForm')||'{}');
+    FIELDS.forEach(function(id){if(d[id])document.getElementById(id).value=d[id]});
+  }catch(e){}
+  syncDisplay();
+}
+function clearAll(){
+  if(!confirm('Clear all saved data and uploaded images?'))return;
+  localStorage.clear();
+  FIELDS.forEach(function(id){
+    var el=document.getElementById(id);
+    if(el&&!el.defaultValue)el.value='';
+    else if(el)el.value=el.defaultValue||'';
+  });
+  // reset defaults
+  document.getElementById('f_event').value='Hands-on AI Agent Building Workshop';
+  document.getElementById('f_date').value='2026-10-27';
+  document.getElementById('f_duration').value='Full day · 4+ hours hands-on';
+  // clear images
+  document.querySelectorAll('.upload-zone').forEach(function(z){
+    z.classList.remove('has-image');
+    var img=z.querySelector('.preview-img');
+    if(img)img.style.display='none';
+  });
+  syncDisplay();
+}
+load();
+
+// ── image upload ──
+function setImage(input,zoneId){
+  if(!input.files||!input.files[0])return;
+  var reader=new FileReader();
+  var zone=document.getElementById(zoneId);
+  reader.onload=function(e){
+    var img=zone.querySelector('.preview-img');
+    img.src=e.target.result;
+    img.style.display='block';
+    zone.classList.add('has-image');
+    // save to localStorage (may fail for large images — that's ok)
+    try{localStorage.setItem('img_'+zoneId,e.target.result)}catch(ex){}
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+function removeImage(e,zoneId,imgId){
+  e.stopPropagation();
+  var zone=document.getElementById(zoneId);
+  var img=document.getElementById(imgId);
+  zone.classList.remove('has-image');
+  img.style.display='none';
+  img.src='';
+  zone.querySelector('input[type=file]').value='';
+  zone.querySelector('input[type=file]').style.pointerEvents='';
+  try{localStorage.removeItem('img_'+zoneId)}catch(ex){}
+}
+
+// restore saved images
+(function(){
+  document.querySelectorAll('.upload-zone').forEach(function(z){
+    var src=localStorage.getItem('img_'+z.id);
+    if(src){
+      var img=z.querySelector('.preview-img');
+      img.src=src;img.style.display='block';
+      z.classList.add('has-image');
+    }
+    // drag-and-drop
+    z.addEventListener('dragover',function(e){e.preventDefault();z.classList.add('drag')});
+    z.addEventListener('dragleave',function(){z.classList.remove('drag')});
+    z.addEventListener('drop',function(e){
+      e.preventDefault();z.classList.remove('drag');
+      var f=e.dataTransfer.files[0];
+      if(!f||!f.type.startsWith('image/'))return;
+      var input=z.querySelector('input[type=file]');
+      var dt=new DataTransfer();dt.items.add(f);input.files=dt.files;
+      setImage(input,z.id);
+    });
+  });
+})();
+
+// ── checklist ──
+function toggleCheck(el){el.classList.toggle('done');el.textContent=el.classList.contains('done')?'✓':''}
+
+// ── mailto ──
+function mailto(email){
+  var name=document.getElementById('f_name').value||'[Your Name]';
+  var subject=encodeURIComponent('AI Bronze Badge Submission — '+name);
+  var body=encodeURIComponent('Hi,\n\nPlease find attached my Bronze Badge submission PDF.\n\nName: '+name+'\nI-Number: '+(document.getElementById('f_inum').value||'')+'\nEmail: '+(document.getElementById('f_email').value||'')+'\n\nThank you!');
+  window.location.href='mailto:'+email+'?subject='+subject+'&body='+body;
+}
+</script>
+</body>
+</html>
